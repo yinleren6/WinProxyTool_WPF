@@ -19,5 +19,5 @@ A gadget for quickly setting up Windows agents
 - [ ] 设置 Override 列表
 - [x] 基本 MaterialDesign 设计
 - [ ] MD对话框
-- [X] ~~自动更新数据~~
+- [ ] ~~自动更新数据~~
 - [ ] ...

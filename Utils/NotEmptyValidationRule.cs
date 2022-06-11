@@ -9,7 +9,7 @@ namespace WinProxyTool_WPF.Utils
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             return string.IsNullOrWhiteSpace((value ?? "").ToString())
-                ? new ValidationResult(false, "Field is required.")
+                ? new ValidationResult(false, "此字段为必填项")
                 : ValidationResult.ValidResult;
         }
     }

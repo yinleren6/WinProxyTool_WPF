@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:wpf="clr-namespace:MaterialDesignThemes.Wpf;assembly=MaterialDesignThemes.Wpf"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:domain="clr-namespace:WinProxyTool_WPF.Utils"
         xmlns:model="clr-namespace:WinProxyTool_WPF.ViewModel"
@@ -12,9 +12,11 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="WinProxyTool" Height="420" Width="561" WindowStyle="SingleBorderWindow">
+
     <Grid Background="#FFE5E5E5">
-        <materialDesign:DialogHost>
-            <!--Identifier="RootDialog"-->
+        <!--主窗体-->
+        <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True">
+
             <materialDesign:DialogHost.DialogContent>
                 <Grid Margin="16">
 
@@ -26,39 +28,60 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock>设置:</TextBlock>
+
                     <!--输入框1-->
-                    <TextBox wpf:HintAssist.Hint="Name" Style="{StaticResource MaterialDesignFloatingHintTextBox}"                 
-                 Margin="0 6 0 0"
-                 FontSize="18" Grid.Row="1" Cursor="Arrow">
+                    <TextBox  materialDesign:HintAssist.Hint="代理 IP 地址" Style="{StaticResource MaterialDesignFloatingHintTextBox}"                 
+                             Margin="0 6 0 6"
+                             FontSize="18" Grid.Row="1" Cursor="Arrow">
                         <TextBox.Text>
-                            <Binding Path="Name" UpdateSourceTrigger="PropertyChanged">
+                            <Binding Path="mainModel.InputProxyIP" UpdateSourceTrigger="PropertyChanged">
                                 <Binding.ValidationRules>
                                     <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
                                 </Binding.ValidationRules>
                             </Binding>
                         </TextBox.Text>
                     </TextBox>
+
                     <!--输入框2-->
-                    <TextBox wpf:HintAssist.Hint="Number" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                 Margin="0 8 0 0"
-                 FontSize="16" Grid.Row="2"/>
-                    <!--两个按钮-->
-                    <StackPanel Orientation="Horizontal" Grid.Row="3"
-                    Margin="0 16 0 0">
-                        <Button IsDefault="True" Style="{StaticResource MaterialDesignFlatButton}"
-                    Command="{x:Static wpf:DialogHost.CloseDialogCommand}">
-                            <Button.CommandParameter>
-                                <system:Boolean>True</system:Boolean>
-                            </Button.CommandParameter>
-                            ACCEPT
-                        </Button>
-                        <Button IsCancel="True" Margin="8 0 0 0" Style="{StaticResource MaterialDesignFlatButton}"
-                    Command="{x:Static wpf:DialogHost.CloseDialogCommand}">
-                            <Button.CommandParameter>
-                                <system:Boolean>False</system:Boolean>
-                            </Button.CommandParameter>
-                            CANCEL
-                        </Button>
+                    <TextBox materialDesign:HintAssist.Hint="端口" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                             Margin="0 6 0 6"
+                             FontSize="16" Grid.Row="2">
+                        <TextBox.Text>
+                            <Binding Path="mainModel.InputProxyPort" UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <domain:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                    <!-- 确认按钮 -->
+                    <StackPanel Orientation="Horizontal" Grid.Row="3">
+                        <StackPanel Margin="16,16,16,0" HorizontalAlignment="Right">
+                            <Button IsDefault="True" Style="{StaticResource MaterialDesignFlatButton}">
+                                <Button.CommandParameter>
+                                    <system:Boolean>True</system:Boolean>
+                                </Button.CommandParameter>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                        <i:InvokeCommandAction Command="{Binding mainModel.SaveConfig}"/>
+                                    </i:EventTrigger>
+                                    <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                        <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                确认
+                            </Button>
+                        </StackPanel>
+                        <!-- 取消按钮 -->
+                        <StackPanel Margin="16,16,16,0" HorizontalAlignment="Right">
+                            <Button IsDefault="True" Style="{StaticResource MaterialDesignFlatButton}"
+                                Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}">
+                                <Button.CommandParameter>
+                                    <system:Boolean>False</system:Boolean>
+                                </Button.CommandParameter>
+                                取消
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
             </materialDesign:DialogHost.DialogContent>
@@ -75,7 +98,7 @@
                                     <TextBlock Text="使用代理服务器" TextAlignment="Left" VerticalAlignment="Center"  />
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5">
                                         <TextBlock Text="{Binding mainModel.ToggleText}" TextAlignment="Left" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,20,-2"  />
-                                        <ToggleButton x:Name="ProxyToggle" Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                        <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                   ToolTip="Default ToggleButton Style"
                                                   IsChecked="{Binding mainModel.ProxyEnable}"
                                                   Command="{Binding mainModel.ToggleProxy}"
@@ -88,36 +111,50 @@
                                         <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
                                                  TextWrapping="Wrap"
                                                  materialDesign:HintAssist.Hint="代理 IP 地址"
-                                                 Text="{Binding mainModel.ProxyIP}"  Cursor="Arrow" HorizontalAlignment="Stretch"/>
+                                                 Text="{Binding mainModel.ProxyIP}"  Cursor="Arrow" HorizontalAlignment="Stretch" IsReadOnly="True"/>
 
                                         <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
                                                  TextWrapping="Wrap"
                                                  materialDesign:HintAssist.Hint="端口"
-                                                 Text="{Binding mainModel.ProxyPort}" Cursor="Arrow" HorizontalAlignment="Stretch"/>
+                                                 Text="{Binding mainModel.ProxyPort}" Cursor="Arrow" HorizontalAlignment="Stretch" IsReadOnly="True"/>
                                     </StackPanel>
                                 </Grid>
 
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
                                         <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5"
-                                                Command="{Binding mainModel.SaveConfig}"
-                                                Content="保存"/>
+                                                Content="设置">
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                    <i:InvokeCommandAction Command="{Binding mainModel.Sync}"/>
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Button>
+
+
 
                                         <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5" 
-                                                Command="{Binding mainModel.OpenSettingsDialog}"
-                                                Content="(test)刷新"
-                                                Click="Button_Click"/>
+                                                Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
+                                                IsEnabled="False"
+                                                Content="OpenDialogCommand"/>
+
+
+
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
                         </TabItem>
                         <TabItem Header="关于">
                             <Grid>
-                            <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5" 
-                                                Command="{}"
-                                                Content="test"/>
-                            
-                        </Grid></TabItem>
+                                <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5" 
+                                               Click="Github"
+                                                Content="Github"/>
+
+                            </Grid>
+                        </TabItem>
 
                     </TabControl>
                 </Grid>

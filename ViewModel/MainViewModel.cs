@@ -1,38 +1,74 @@
-﻿using MaterialDesignThemes.Wpf;
+﻿using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
+using MaterialDesignThemes.Wpf;
 using System;
 using System.Diagnostics;
+using System.Threading;
+using System.Windows.Input;
 using WinProxyTool_WPF.Model;
 using WinProxyTool_WPF.Utils;
 using WinProxyTool_WPF.View;
-
 namespace WinProxyTool_WPF.ViewModel
 {
-    internal class MainViewModel : DialogHost
+
+    internal class MainViewModel : ViewModelBase
     {
+        #region 命令
+        private RelayCommand sendCommand;
+
+        public RelayCommand _sendCommand
+        {
+            get
+            {
+                if (sendCommand == null)
+                {
+                    sendCommand = new RelayCommand(() => _SaveConfig());
+                }
+                return sendCommand;
+            }
+            set
+            {
+                sendCommand = value;
+            }
+        }
+        #endregion
+
+        private void ExcuteSendCommand()
+        {   //对话框的确认按钮
+            Messenger.Default.Send<String>(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort, "ViewAlert");
+            Debug.WriteLine("MouseLeftButtonDown");
+        }
+
         public MainModel mainModel { get; set; } = new();
 
         WinRegTool winRegTool = new();
         public MainViewModel()
         {
             mainModel.ToggleProxy = new Command { ExecuteAction = obj => { _ToggleProxy(obj); } };
-            mainModel.SaveConfig = new Command { ExecuteAction = _ => { _SaveConfig(_); } };
-            mainModel.OpenSettingsDialog = new Command { ExecuteAction = _ => { _OpenSettingsDialog(_); } };
-            mainModel.CloseDialogCommand = new Command { ExecuteAction = _ => { _CloseDialogCommand(_); } };
+            mainModel.SaveConfig = new Command { ExecuteAction = _ => { _SaveConfig(); } };
+            mainModel.UpdateStat = new Command { ExecuteAction = _ => { _updateStat(); } };
+            mainModel.Sync = new Command { ExecuteAction = _ => { _sync(); } };
+            mainModel.SaveConfig = _sendCommand;
 
-            UpdateStat();
+            _updateStat();
             UIUpdataThread();
         }
 
-        //public ICommand RunDialogCommand => new Command(ExecuteRunDialog);
+        private void _sync()
+        {
+            mainModel.InputProxyIP = mainModel.ProxyIP;
+            mainModel.InputProxyPort = mainModel.ProxyPort;
+        }
 
+        //自动更新线程
         private void UIUpdataThread()
         {
-            //  new Thread(() => { while (true) { Thread.Sleep(1000); UpdateStat(); } }).Start();
+            new Thread(() => { while (true) { Thread.Sleep(1000); _updateStat(); } }).Start();
         }
 
         private void _ToggleProxy(object? _)
         {
-            UpdateStat();
+            _updateStat();
             switch (mainModel.ProxyEnable)
             {
                 case 0:
@@ -41,55 +77,45 @@ namespace WinProxyTool_WPF.ViewModel
                     winRegTool.Set_ProxyEnable(0); break;
                 default: break;
             }
-            UpdateStat();
+            _updateStat();
         }
-        private void _SaveConfig(object? o)
+
+        private void _SaveConfig()
         {
-            mainModel.ProxyIP = mainModel.ProxyIP.Trim();
-            mainModel.ProxyPort = mainModel.ProxyPort.Trim();
-            if (mainModel.ProxyIP != "" && mainModel.ProxyPort.IndexOf(" ") == -1)
+            Debug.WriteLine("InputIP=" + (mainModel.InputProxyIP == null ? "空值" : ">" + mainModel.InputProxyIP + "<"));
+            Debug.WriteLine("InputPort=" + (mainModel.InputProxyPort == null ? "空值" : ">" + mainModel.InputProxyPort + "<"));
+
+
+            if (mainModel.InputProxyIP != "" && mainModel.InputProxyIP.IndexOf(" ") == -1)
             {
-                if (mainModel.ProxyPort != "" && mainModel.ProxyPort.IndexOf(" ") == -1 && int.TryParse(mainModel.ProxyPort, out _))
+                if (mainModel.InputProxyPort != "" && mainModel.InputProxyPort.IndexOf(" ") == -1 && int.TryParse(mainModel.InputProxyPort, out _))
                 {
                     Debug.WriteLine("执行保存逻辑");
-                    winRegTool.Set_ProxyServer(mainModel.ProxyIP + ":" + mainModel.ProxyPort);
+                    winRegTool.Set_ProxyServer(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort);
                 }
-                else
-                {
-                    Debug.WriteLine("端口错误");
-                }
+                else { Debug.WriteLine("端口错误"); }
             }
-            else
-            {
-                Debug.WriteLine("IP错误");
-            }
+            else { Debug.WriteLine("IP错误"); }
         }
 
         private async void _OpenSettingsDialog(object? _)
         {
-            UpdateStat();
-            //let's set up a little MVVM,` cos that's what the cool kids are doing:
-            // var view = new MainWindow
+            _updateStat();
+
+            var view = new MainWindow
             {
-                //     DataContext = new MainViewModel()
+                DataContext = new MainViewModel()
             };
 
-            //show the dialog
-            //var result = await Show(view, ClosingEventHandler);
-            // var result = await Show(this, ClosingEventHandler);
+            var result = await DialogHost.Show(view, "RootDialog", ClosingEventHandler);
 
-
-            //check the result...
-            //  Debug.WriteLine("对话框已关闭, 参数为: " + (result ?? "空值"));
-            //  Debug.WriteLine("view.Name:->" + "" + "<-");
-        }
-        private void _CloseDialogCommand(object _)
-        {
+            Debug.WriteLine("对话框已关闭, 参数为: " + (result ?? "空值"));
 
         }
 
+        private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs) => Debug.WriteLine("对话框关闭事件回调");
 
-        public void UpdateStat()
+        public void _updateStat()
         {
             mainModel.ProxyEnable = winRegTool.Get_ProxyEnable();
             mainModel.ToggleText = mainModel.ProxyEnable == 1 ? "开" : "关";
@@ -110,13 +136,7 @@ namespace WinProxyTool_WPF.ViewModel
             mainModel.ProxyOverride = winRegTool.Get_ProxyOverride();
 
         }
-
-
-        public bool CanDoSomething(object _) { return true;  /**判断能否做这个事情，大部分时候返回true就行了**/ }
-
-
-        private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs)
-            => Debug.WriteLine("对话框关闭事件回调");
+        
 
     }
 }

@@ -1,15 +1,18 @@
 ﻿using System;
-
 using System.Windows.Input;
 
 namespace WinProxyTool_WPF.Utils
 {
     class Command : ICommand
     {
-        public Action<object> ExecuteAction { get; set; }
-        public Func<object, bool> CanExecuteAction { get; set; }
+        public Action<object>? ExecuteAction { get; set; }
+
+        public Func<object, bool>? CanExecuteAction { get; set; }
+
         public event EventHandler? CanExecuteChanged;
-        public bool CanExecute(object parameter) => true;
+
+        public bool CanExecute(object? parameter) => true;
+
         //CanExecuteAction.Invoke(parameter);
 
         public void Execute(object? parameter) => ExecuteAction.Invoke(parameter);
@@ -31,7 +34,6 @@ namespace WinProxyTool_WPF.Utils
         //public event EventHandler CanExecuteChanged;
 
         #endregion-----------------------------------------------
-
 
     }
 }

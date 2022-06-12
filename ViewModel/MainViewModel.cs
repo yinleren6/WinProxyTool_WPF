@@ -1,16 +1,11 @@
 ﻿using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
-using MaterialDesignThemes.Wpf;
 using System;
 using System.Diagnostics;
 using System.Threading;
-using System.Windows.Input;
 using WinProxyTool_WPF.Model;
 using WinProxyTool_WPF.Utils;
-using WinProxyTool_WPF.View;
 namespace WinProxyTool_WPF.ViewModel
 {
-
     internal class MainViewModel : ViewModelBase
     {
         #region 命令
@@ -22,7 +17,7 @@ namespace WinProxyTool_WPF.ViewModel
             {
                 if (sendCommand == null)
                 {
-                    sendCommand = new RelayCommand(() => _SaveConfig());
+                    sendCommand = new RelayCommand(() => _SaveProxyServer());
                 }
                 return sendCommand;
             }
@@ -33,42 +28,55 @@ namespace WinProxyTool_WPF.ViewModel
         }
         #endregion
 
-        private void ExcuteSendCommand()
-        {   //对话框的确认按钮
-            Messenger.Default.Send<String>(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort, "ViewAlert");
-            Debug.WriteLine("MouseLeftButtonDown");
-        }
+        //private void ExcuteSendCommand()
+        //{   //对话框的确认按钮
+        //    Messenger.Default.Send<String>(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort, "ViewAlert");
+        //    Debug.WriteLine("MouseLeftButtonDown");
+        //}
 
         public MainModel mainModel { get; set; } = new();
 
         WinRegTool winRegTool = new();
         public MainViewModel()
         {
-            mainModel.ToggleProxy = new Command { ExecuteAction = obj => { _ToggleProxy(obj); } };
-            mainModel.SaveConfig = new Command { ExecuteAction = _ => { _SaveConfig(); } };
-            mainModel.UpdateStat = new Command { ExecuteAction = _ => { _updateStat(); } };
-            mainModel.Sync = new Command { ExecuteAction = _ => { _sync(); } };
-            mainModel.SaveConfig = _sendCommand;
+            mainModel.ToggleProxy = new Command { ExecuteAction = obj => { _ToggleProxy(); } };
+            mainModel.UpdataProxyStatu = new Command { ExecuteAction = _ => { _AutoUpdataProxyStatu(); } };
+            mainModel.SaveProxyServer = new Command { ExecuteAction = _ => { _SaveProxyServer(); } };
 
-            _updateStat();
+            mainModel.ToggleOverride = new Command { ExecuteAction = _ => { _ToggleOverride(); } };
+            mainModel.UpdataOverrideStatu = new Command { ExecuteAction = _ => { _AutoUpdataOverrideStatu(); } };
+            mainModel.SaveOverride = new Command { ExecuteAction = _ => { _SaveOverride(); } };
+
+            mainModel.Sync = new Command { ExecuteAction = _ => { _SyncDialog(); } };
+
+            _AutoUpdataProxyStatu();
+            _AutoUpdataOverrideStatu();
+            _SyncDialog();
             UIUpdataThread();
         }
-
-        private void _sync()
-        {
-            mainModel.InputProxyIP = mainModel.ProxyIP;
-            mainModel.InputProxyPort = mainModel.ProxyPort;
-        }
-
         //自动更新线程
         private void UIUpdataThread()
         {
-            new Thread(() => { while (true) { Thread.Sleep(1000); _updateStat(); } }).Start();
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    _AutoUpdataProxyStatu();
+                    _AutoUpdataOverrideStatu();
+                }
+            }).Start();
+        }
+        private void _SyncDialog()
+        {
+            mainModel.InputProxyIP = mainModel.ProxyIP;
+            mainModel.InputProxyPort = mainModel.ProxyPort;
+            mainModel.InputProxyOverride = mainModel.ProxyOverride.Replace("<local>;", "").Replace(";<local>", "").Replace("<local>", "");
         }
 
-        private void _ToggleProxy(object? _)
+        private void _ToggleProxy()
         {
-            _updateStat();
+            _AutoUpdataProxyStatu();
             switch (mainModel.ProxyEnable)
             {
                 case 0:
@@ -77,50 +85,14 @@ namespace WinProxyTool_WPF.ViewModel
                     winRegTool.Set_ProxyEnable(0); break;
                 default: break;
             }
-            _updateStat();
+            _AutoUpdataProxyStatu();
         }
 
-        private void _SaveConfig()
-        {
-            Debug.WriteLine("InputIP=" + (mainModel.InputProxyIP == null ? "空值" : ">" + mainModel.InputProxyIP + "<"));
-            Debug.WriteLine("InputPort=" + (mainModel.InputProxyPort == null ? "空值" : ">" + mainModel.InputProxyPort + "<"));
-
-
-            if (mainModel.InputProxyIP != "" && mainModel.InputProxyIP.IndexOf(" ") == -1)
-            {
-                if (mainModel.InputProxyPort != "" && mainModel.InputProxyPort.IndexOf(" ") == -1 && int.TryParse(mainModel.InputProxyPort, out _))
-                {
-                    Debug.WriteLine("执行保存逻辑");
-                    winRegTool.Set_ProxyServer(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort);
-                }
-                else { Debug.WriteLine("端口错误"); }
-            }
-            else { Debug.WriteLine("IP错误"); }
-        }
-
-        private async void _OpenSettingsDialog(object? _)
-        {
-            _updateStat();
-
-            var view = new MainWindow
-            {
-                DataContext = new MainViewModel()
-            };
-
-            var result = await DialogHost.Show(view, "RootDialog", ClosingEventHandler);
-
-            Debug.WriteLine("对话框已关闭, 参数为: " + (result ?? "空值"));
-
-        }
-
-        private void ClosingEventHandler(object sender, DialogClosingEventArgs eventArgs) => Debug.WriteLine("对话框关闭事件回调");
-
-        public void _updateStat()
+        public void _AutoUpdataProxyStatu()
         {
             mainModel.ProxyEnable = winRegTool.Get_ProxyEnable();
-            mainModel.ToggleText = mainModel.ProxyEnable == 1 ? "开" : "关";
-
-            string ProxyServer = winRegTool.Get_ProxyServer();
+            string ProxyServer = winRegTool.Get_ProxyServer() ?? "";
+            mainModel.ProxyOverride = winRegTool.Get_ProxyOverride() ?? "";
             try
             {
                 int index = ProxyServer.IndexOf("://");
@@ -131,12 +103,65 @@ namespace WinProxyTool_WPF.ViewModel
                     mainModel.ProxyIP = (string)ProxyServer.Split(':')[0];
                     mainModel.ProxyPort = (string)ProxyServer.Split(':')[1];
                 }
+                mainModel.IsSkipLocal = mainModel.ProxyOverride.Contains("<local>");
+                if (mainModel.ProxyOverride.EndsWith(";"))
+                {
+                    mainModel.ProxyOverride = mainModel.ProxyOverride.Substring(0, mainModel.ProxyOverride.Length - 1);
+                }
             }
             catch (Exception) { }
-            mainModel.ProxyOverride = winRegTool.Get_ProxyOverride();
-
         }
-        
+        private void _SaveProxyServer()
+        {
+            Debug.WriteLine("InputIP=" + (mainModel.InputProxyIP == null ? "空值" : "[" + mainModel.InputProxyIP + "]"));
+            Debug.WriteLine("InputPort=" + (mainModel.InputProxyPort == null ? "空值" : "[" + mainModel.InputProxyPort + "]"));
+            try
+            {
+                if (mainModel.InputProxyIP != null && mainModel.InputProxyPort != null)
+                {
+                    if (mainModel.InputProxyIP != "" && mainModel.InputProxyIP.IndexOf(" ") == -1)
+                    {
+                        if (mainModel.InputProxyPort != "" && mainModel.InputProxyPort.IndexOf(" ") == -1 && int.TryParse(mainModel.InputProxyPort, out _))
+                        {
+                            Debug.WriteLine("执行保存逻辑");
+                            winRegTool.Set_ProxyServer(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort);
+                        }
+                        else { Debug.WriteLine("端口错误"); }
+                    }
+                    else { Debug.WriteLine("IP错误"); }
+                }
+            }
+            catch (NullReferenceException) { Debug.WriteLine("NullReferenceException"); }
+        }
 
+        private void _ToggleOverride()
+        {
+            _SaveOverride();
+        }
+        public void _AutoUpdataOverrideStatu()
+        {
+            mainModel.ProxyOverride = winRegTool.Get_ProxyOverride() != null ? winRegTool.Get_ProxyOverride() : "";
+            mainModel.IsSkipLocal = mainModel.ProxyOverride.Contains("<local>");
+        }
+        public void _SaveOverride()
+        {
+            string? input = mainModel.InputProxyOverride;
+            if (mainModel.SkipStatu)
+            {
+                if (!input.Contains("<local>")) { input = input + ";<local>"; }
+            }
+            else
+            {
+                if (input.Contains("<local>"))
+                {
+                    input = input.Replace("<local>;", "").Replace(";<local>", "").Replace("<local>", "");
+                }
+            }
+            if (input.StartsWith(";"))
+            { input = input.Substring(1, input.Length - 1); }
+            if (input.EndsWith(";"))
+            { input = input.Substring(0, input.Length - 2); }
+            winRegTool.Set_ProxyOverride(input);
+        }
     }
 }

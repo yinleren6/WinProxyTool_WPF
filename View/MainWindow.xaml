@@ -11,12 +11,12 @@
         d:DataContext="{d:DesignInstance Type=model:MainViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="WinProxyTool" Height="420" Width="561" WindowStyle="SingleBorderWindow">
+        Height="480" Width="560" WindowStyle="SingleBorderWindow">
 
     <Grid Background="#FFE5E5E5">
         <!--主窗体-->
         <materialDesign:DialogHost Identifier="RootDialog" CloseOnClickAway="True">
-
+            <!--对话框-->
             <materialDesign:DialogHost.DialogContent>
                 <Grid Margin="16">
 
@@ -32,7 +32,7 @@
                     <!--输入框1-->
                     <TextBox  materialDesign:HintAssist.Hint="代理 IP 地址" Style="{StaticResource MaterialDesignFloatingHintTextBox}"                 
                              Margin="0 6 0 6"
-                             FontSize="18" Grid.Row="1" Cursor="Arrow">
+                             FontSize="20" Grid.Row="1" Cursor="Arrow">
                         <TextBox.Text>
                             <Binding Path="mainModel.InputProxyIP" UpdateSourceTrigger="PropertyChanged">
                                 <Binding.ValidationRules>
@@ -45,7 +45,7 @@
                     <!--输入框2-->
                     <TextBox materialDesign:HintAssist.Hint="端口" Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                              Margin="0 6 0 6"
-                             FontSize="16" Grid.Row="2">
+                             FontSize="20" Grid.Row="2">
                         <TextBox.Text>
                             <Binding Path="mainModel.InputProxyPort" UpdateSourceTrigger="PropertyChanged">
                                 <Binding.ValidationRules>
@@ -63,7 +63,7 @@
                                 </Button.CommandParameter>
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
-                                        <i:InvokeCommandAction Command="{Binding mainModel.SaveConfig}"/>
+                                        <i:InvokeCommandAction Command="{Binding mainModel.SaveProxyServer}"/>
                                     </i:EventTrigger>
                                     <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
                                         <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}"/>
@@ -86,40 +86,70 @@
                 </Grid>
             </materialDesign:DialogHost.DialogContent>
 
-            <materialDesign:Card FontSize="23">
+            <materialDesign:Card FontSize="22">
                 <Grid>
                     <!--上方留空 -->
                     <Grid Height="50" VerticalAlignment="Top"></Grid>
-
+                    <!--Tab-->
                     <TabControl  TabStripPlacement="Left" Margin="0,50,0,0">
-                        <TabItem Header="代理">
-                            <StackPanel Margin="10,10,10,10">
-                                <Grid Height="50" HorizontalAlignment="Stretch"  >
+                        <TabItem Header="常规">
+                            <StackPanel Margin="40,0,40,0">
+
+                                <Grid Margin="0,0,0,18">
                                     <TextBlock Text="使用代理服务器" TextAlignment="Left" VerticalAlignment="Center"  />
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5">
-                                        <TextBlock Text="{Binding mainModel.ToggleText}" TextAlignment="Left" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,20,-2"  />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                         <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                   ToolTip="Default ToggleButton Style"
                                                   IsChecked="{Binding mainModel.ProxyEnable}"
                                                   Command="{Binding mainModel.ToggleProxy}"
-                                                  CommandParameter="toggle" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                  VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <Grid>
-                                    <StackPanel Margin="5">
-                                        <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
+                                <Grid Margin="0,0,0,20">
+                                    <TextBlock Text="代理 IP 地址" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="{Binding mainModel.ProxyIP}" TextDecorations="Underline" HorizontalAlignment="Right">
+                                                <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                    <i:InvokeCommandAction Command="{Binding mainModel.Sync}"/>
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                    </TextBlock>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,20">
+                                    <TextBlock Text="端口" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="{Binding mainModel.ProxyPort}" TextDecorations="Underline"
+                                                           HorizontalAlignment="Right" Cursor="Arrow">
+                                                <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonDown">
+                                                    <i:InvokeCommandAction Command="{Binding mainModel.Sync}"/>
+                                                </i:EventTrigger>
+                                                <i:EventTrigger EventName="PreviewMouseLeftButtonUp">
+                                                    <i:InvokeCommandAction Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                    </TextBlock>
+                                </Grid>
+
+                                <!--<Grid>
+                                    <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
                                                  TextWrapping="Wrap"
                                                  materialDesign:HintAssist.Hint="代理 IP 地址"
-                                                 Text="{Binding mainModel.ProxyIP}"  Cursor="Arrow" HorizontalAlignment="Stretch" IsReadOnly="True"/>
+                                                 Text="{Binding mainModel.ProxyIP}"  Cursor="Arrow" IsReadOnly="True"/>
+                                </Grid>-->
 
-                                        <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
+                                <!--<Grid>
+                                    <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
                                                  TextWrapping="Wrap"
                                                  materialDesign:HintAssist.Hint="端口"
-                                                 Text="{Binding mainModel.ProxyPort}" Cursor="Arrow" HorizontalAlignment="Stretch" IsReadOnly="True"/>
-                                    </StackPanel>
-                                </Grid>
+                                                 Text="{Binding mainModel.ProxyPort}" Cursor="Arrow" IsReadOnly="True"/>
+                                </Grid>-->
 
+                                <!--下方俩按钮-->
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
                                         <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5"
@@ -147,13 +177,47 @@
                                 </Grid>
                             </StackPanel>
                         </TabItem>
-                        <TabItem Header="关于">
-                            <Grid>
-                                <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5" 
-                                               Click="Github"
-                                                Content="Github"/>
+                        <TabItem Header="配置">
+                            <StackPanel Margin="40,10,40,10">
+                                <StackPanel>
+                                    <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                                                VerticalAlignment="Top"
+                                                Height="200" FontSize="18"
+                                                AcceptsReturn="False"
+                                                TextWrapping="Wrap"
+                                                VerticalScrollBarVisibility="Auto"
+                                             Text="{Binding mainModel.InputProxyOverride}"
+                                                materialDesign:HintAssist.Hint="请勿对这些地址使用代理, 多个地址请用;隔开" Margin="0,5,0,0"/>
+                                    <CheckBox x:Name="MaterialDesignOutlinedTextBoxEnabledComboBox"
+                                              IsChecked="{Binding mainModel.SkipStatu}"
+                                              Command="{Binding mainModel.ToggleOverride}"
+                                              Content="本地(Intranet)地址不使用代理" Margin="0,5,0,0" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
+                                        <Button Command="{Binding mainModel.SaveOverride}" Content="保存" Margin="0,0,10,0"/>
+                                        <Button Command="{Binding mainModel.Sync}" Content="刷新" Margin="10,0,0,0"/>
+                                    </StackPanel>
 
-                            </Grid>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </TabItem>
+                        <TabItem Header="关于">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Github">
+                                        <materialDesign:PackIcon.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform ScaleX="2" ScaleY="2"/>
+                                            </TransformGroup>
+                                        </materialDesign:PackIcon.RenderTransform>
+                                    </materialDesign:PackIcon>
+
+                                    <TextBlock Margin="30,0,0,0">
+                                            <Hyperlink Click="Github" Cursor="Hand">Github</Hyperlink>
+                                    </TextBlock>
+
+                                </StackPanel>
+                            </StackPanel>
                         </TabItem>
 
                     </TabControl>

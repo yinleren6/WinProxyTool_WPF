@@ -16,8 +16,8 @@ A gadget for quickly setting up Windows agents
 
 - [x] 代理开关
 - [x] 设置 IP 和 Port
-- [ ] 设置 Override 列表
-- [x] 基本 MaterialDesign 设计
-- [X] MD对话框
-- [X] 自动更新数据
+- [x] 设置 Override 列表
+- [x] MD 对话框
+- [x] 自动更新数据
+- [ ] 添加 Sanckbar
 - [ ] ...

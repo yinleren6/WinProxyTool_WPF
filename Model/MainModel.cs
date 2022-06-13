@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Input;
-using WinProxyTool_WPF.Utils;
+﻿using System.Windows.Input;
 using WinProxyTool_WPF.ViewModel;
 
 namespace WinProxyTool_WPF.Model
@@ -13,8 +11,8 @@ namespace WinProxyTool_WPF.Model
         private string? _proxyIp;
         private string? _inputProxyIp;
 
-        private string? _proxyPort;
-        private string? _inputProxyPort;
+        private int? _proxyPort;
+        private int? _inputProxyPort;
 
         private string? _proxyOverride;
         private string? _inputProxyOverride;
@@ -32,7 +30,7 @@ namespace WinProxyTool_WPF.Model
             get => _proxyIp;
             set => SetProperty(ref _proxyIp, value);
         }
-        public string? ProxyPort
+        public int? ProxyPort
         {
             get => _proxyPort;
             set => SetProperty(ref _proxyPort, value);
@@ -57,7 +55,7 @@ namespace WinProxyTool_WPF.Model
             get => _inputProxyIp;
             set => SetProperty(ref _inputProxyIp, value);
         }
-        public string? InputProxyPort
+        public int? InputProxyPort
         {
             get => _inputProxyPort;
             set => SetProperty(ref _inputProxyPort, value);

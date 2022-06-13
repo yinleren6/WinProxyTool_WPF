@@ -11,7 +11,7 @@
         d:DataContext="{d:DesignInstance Type=model:MainViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Height="480" Width="560" WindowStyle="SingleBorderWindow">
+        Height="480" Width="580" WindowStyle="SingleBorderWindow">
 
     <Grid Background="#FFE5E5E5">
         <!--主窗体-->
@@ -87,7 +87,9 @@
             </materialDesign:DialogHost.DialogContent>
 
             <materialDesign:Card FontSize="22">
+
                 <Grid>
+
                     <!--上方留空 -->
                     <Grid Height="50" VerticalAlignment="Top"></Grid>
                     <!--Tab-->

@@ -101,7 +101,7 @@ namespace WinProxyTool_WPF.ViewModel
                 if (!ProxyServer.Contains("://", StringComparison.CurrentCulture))
                 {
                     mainModel.ProxyIP = (string)ProxyServer.Split(':')[0];
-                    mainModel.ProxyPort = (string)ProxyServer.Split(':')[1];
+                    mainModel.ProxyPort = int.Parse((string)ProxyServer.Split(':')[1]);
                 }
                 mainModel.IsSkipLocal = mainModel.ProxyOverride.Contains("<local>");
                 if (mainModel.ProxyOverride.EndsWith(";"))
@@ -113,31 +113,32 @@ namespace WinProxyTool_WPF.ViewModel
         }
         private void _SaveProxyServer()
         {
-            Debug.WriteLine("InputIP=" + (mainModel.InputProxyIP == null ? "空值" : "[" + mainModel.InputProxyIP + "]"));
-            Debug.WriteLine("InputPort=" + (mainModel.InputProxyPort == null ? "空值" : "[" + mainModel.InputProxyPort + "]"));
+            string checkIP = mainModel.InputProxyIP == null || mainModel.InputProxyIP == "" ? "空值" : "[" + mainModel.InputProxyIP + "]";
+            string checkPort = mainModel.InputProxyPort == null || mainModel.InputProxyPort == 0 ? "空值" : "[" + mainModel.InputProxyPort + "]";
+            Debug.WriteLine("checkIP >>>" + checkIP);
+            Debug.WriteLine("checkPort >>>" + checkPort);
+
             try
-            {
-                if (mainModel.InputProxyIP != null && mainModel.InputProxyPort != null)
-                {
-                    if (mainModel.InputProxyIP != "" && mainModel.InputProxyIP.IndexOf(" ") == -1)
+            {   //判空
+                if (mainModel.InputProxyIP != null
+                    && mainModel.InputProxyIP != ""
+                    && mainModel.InputProxyIP.IndexOf(" ") == -1)
+                {   //port
+                    if (mainModel.InputProxyPort != null
+                    && mainModel.InputProxyPort > 0
+                    && mainModel.InputProxyPort < 65536)
                     {
-                        if (mainModel.InputProxyPort != "" && mainModel.InputProxyPort.IndexOf(" ") == -1 && int.TryParse(mainModel.InputProxyPort, out _))
-                        {
-                            Debug.WriteLine("执行保存逻辑");
-                            winRegTool.Set_ProxyServer(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort);
-                        }
-                        else { Debug.WriteLine("端口错误"); }
+                        Debug.WriteLine("执行保存逻辑...");
+                        winRegTool.Set_ProxyServer(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort);
                     }
-                    else { Debug.WriteLine("IP错误"); }
+                    else Debug.WriteLine("端口错误");
                 }
+                else Debug.WriteLine("IP错误");
             }
-            catch (NullReferenceException) { Debug.WriteLine("NullReferenceException"); }
+            catch (Exception e) { Debug.WriteLine("捕获异常>>>" + e); }
         }
 
-        private void _ToggleOverride()
-        {
-            _SaveOverride();
-        }
+        private void _ToggleOverride() { _SaveOverride(); }
         public void _AutoUpdataOverrideStatu()
         {
             mainModel.ProxyOverride = winRegTool.Get_ProxyOverride() != null ? winRegTool.Get_ProxyOverride() : "";

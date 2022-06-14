@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Windows.Controls;
 
-
 namespace WinProxyTool_WPF.Utils
 {
     public class NotEmptyValidationRule : ValidationRule

@@ -1,39 +1,13 @@
-﻿using GalaSoft.MvvmLight.Command;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 using WinProxyTool_WPF.Model;
 using WinProxyTool_WPF.Utils;
+
 namespace WinProxyTool_WPF.ViewModel
 {
     internal class MainViewModel : ViewModelBase
     {
-        #region 命令
-        private RelayCommand sendCommand;
-
-        public RelayCommand _sendCommand
-        {
-            get
-            {
-                if (sendCommand == null)
-                {
-                    sendCommand = new RelayCommand(() => _SaveProxyServer());
-                }
-                return sendCommand;
-            }
-            set
-            {
-                sendCommand = value;
-            }
-        }
-        #endregion
-
-        //private void ExcuteSendCommand()
-        //{   //对话框的确认按钮
-        //    Messenger.Default.Send<String>(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort, "ViewAlert");
-        //    Debug.WriteLine("MouseLeftButtonDown");
-        //}
-
         public MainModel mainModel { get; set; } = new();
 
         WinRegTool winRegTool = new();
@@ -67,6 +41,7 @@ namespace WinProxyTool_WPF.ViewModel
                 }
             }).Start();
         }
+
         private void _SyncDialog()
         {
             mainModel.InputProxyIP = mainModel.ProxyIP;
@@ -111,13 +86,9 @@ namespace WinProxyTool_WPF.ViewModel
             }
             catch (Exception) { }
         }
+
         private void _SaveProxyServer()
         {
-            string checkIP = mainModel.InputProxyIP == null || mainModel.InputProxyIP == "" ? "空值" : "[" + mainModel.InputProxyIP + "]";
-            string checkPort = mainModel.InputProxyPort == null || mainModel.InputProxyPort == 0 ? "空值" : "[" + mainModel.InputProxyPort + "]";
-            Debug.WriteLine("checkIP >>>" + checkIP);
-            Debug.WriteLine("checkPort >>>" + checkPort);
-
             try
             {   //判空
                 if (mainModel.InputProxyIP != null
@@ -128,7 +99,6 @@ namespace WinProxyTool_WPF.ViewModel
                     && mainModel.InputProxyPort > 0
                     && mainModel.InputProxyPort < 65536)
                     {
-                        Debug.WriteLine("执行保存逻辑...");
                         winRegTool.Set_ProxyServer(mainModel.InputProxyIP + ":" + mainModel.InputProxyPort);
                     }
                     else Debug.WriteLine("端口错误");
@@ -139,11 +109,13 @@ namespace WinProxyTool_WPF.ViewModel
         }
 
         private void _ToggleOverride() { _SaveOverride(); }
+
         public void _AutoUpdataOverrideStatu()
         {
             mainModel.ProxyOverride = winRegTool.Get_ProxyOverride() != null ? winRegTool.Get_ProxyOverride() : "";
             mainModel.IsSkipLocal = mainModel.ProxyOverride.Contains("<local>");
         }
+
         public void _SaveOverride()
         {
             string? input = mainModel.InputProxyOverride;

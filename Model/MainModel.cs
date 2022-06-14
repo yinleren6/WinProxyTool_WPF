@@ -5,8 +5,6 @@ namespace WinProxyTool_WPF.Model
 {
     public class MainModel : ViewModelBase
     {
-        // public event PropertyChangedEventHandler? PropertyChanged;
-
         private int? _proxyEnable;
         private string? _proxyIp;
         private string? _inputProxyIp;
@@ -73,6 +71,7 @@ namespace WinProxyTool_WPF.Model
         public ICommand? SaveProxyServer { get; set; }
         //同步对话框
         public ICommand? Sync { get; set; }
+        //Override
         public ICommand? ToggleOverride { get; set; }
         //更新数据 
         public ICommand? UpdataOverrideStatu { get; set; }

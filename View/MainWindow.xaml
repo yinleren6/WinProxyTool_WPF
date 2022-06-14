@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:domain="clr-namespace:WinProxyTool_WPF.Utils"
         xmlns:model="clr-namespace:WinProxyTool_WPF.ViewModel"
@@ -54,6 +54,7 @@
                             </Binding>
                         </TextBox.Text>
                     </TextBox>
+
                     <!-- 确认按钮 -->
                     <StackPanel Orientation="Horizontal" Grid.Row="3">
                         <StackPanel Margin="16,16,16,0" HorizontalAlignment="Right">
@@ -72,6 +73,7 @@
                                 确认
                             </Button>
                         </StackPanel>
+
                         <!-- 取消按钮 -->
                         <StackPanel Margin="16,16,16,0" HorizontalAlignment="Right">
                             <Button IsDefault="True" Style="{StaticResource MaterialDesignFlatButton}"
@@ -87,9 +89,7 @@
             </materialDesign:DialogHost.DialogContent>
 
             <materialDesign:Card FontSize="22">
-
                 <Grid>
-
                     <!--上方留空 -->
                     <Grid Height="50" VerticalAlignment="Top"></Grid>
                     <!--Tab-->
@@ -137,21 +137,7 @@
                                     </TextBlock>
                                 </Grid>
 
-                                <!--<Grid>
-                                    <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
-                                                 TextWrapping="Wrap"
-                                                 materialDesign:HintAssist.Hint="代理 IP 地址"
-                                                 Text="{Binding mainModel.ProxyIP}"  Cursor="Arrow" IsReadOnly="True"/>
-                                </Grid>-->
-
-                                <!--<Grid>
-                                    <TextBox Style="{StaticResource MaterialDesignFilledTextBox}"
-                                                 TextWrapping="Wrap"
-                                                 materialDesign:HintAssist.Hint="端口"
-                                                 Text="{Binding mainModel.ProxyPort}" Cursor="Arrow" IsReadOnly="True"/>
-                                </Grid>-->
-
-                                <!--下方俩按钮-->
+                                <!--下方按钮-->
                                 <Grid>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
                                         <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5"
@@ -166,23 +152,15 @@
                                             </i:Interaction.Triggers>
                                         </Button>
 
-
-
-                                        <Button HorizontalAlignment="Center" Cursor="Hand" Width="146" Height="40" VerticalAlignment="Top" Margin="5,5,5,5" 
-                                                Command="{x:Static materialDesign:DialogHost.OpenDialogCommand}"
-                                                IsEnabled="False"
-                                                Content="OpenDialogCommand"/>
-
-
-
                                     </StackPanel>
                                 </Grid>
                             </StackPanel>
                         </TabItem>
+
                         <TabItem Header="配置">
                             <StackPanel Margin="40,10,40,10">
-                                <StackPanel>
-                                    <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}"
+
+                                <TextBox Style="{StaticResource MaterialDesignOutlinedTextBox}"
                                                 VerticalAlignment="Top"
                                                 Height="200" FontSize="18"
                                                 AcceptsReturn="False"
@@ -190,22 +168,25 @@
                                                 VerticalScrollBarVisibility="Auto"
                                              Text="{Binding mainModel.InputProxyOverride}"
                                                 materialDesign:HintAssist.Hint="请勿对这些地址使用代理, 多个地址请用;隔开" Margin="0,5,0,0"/>
-                                    <CheckBox x:Name="MaterialDesignOutlinedTextBoxEnabledComboBox"
+                                <CheckBox x:Name="MaterialDesignOutlinedTextBoxEnabledComboBox"
                                               IsChecked="{Binding mainModel.SkipStatu}"
                                               Command="{Binding mainModel.ToggleOverride}"
                                               Content="本地(Intranet)地址不使用代理" Margin="0,5,0,0" />
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
-                                        <Button Command="{Binding mainModel.SaveOverride}" Content="保存" Margin="0,0,10,0"/>
-                                        <Button Command="{Binding mainModel.Sync}" Content="刷新" Margin="10,0,0,0"/>
-                                    </StackPanel>
-
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,10,0,0">
+                                    <Button Command="{Binding mainModel.SaveOverride}" Content="保存" Margin="0,0,10,0"/>
+                                    <Button Command="{Binding mainModel.Sync}" Content="刷新" Margin="10,0,0,0"/>
                                 </StackPanel>
+
                             </StackPanel>
 
                         </TabItem>
                         <TabItem Header="关于">
+
                             <StackPanel>
-                                <StackPanel Orientation="Horizontal">
+
+                                <StackPanel/>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,20,0,0">
+
                                     <materialDesign:PackIcon Kind="Github">
                                         <materialDesign:PackIcon.RenderTransform>
                                             <TransformGroup>

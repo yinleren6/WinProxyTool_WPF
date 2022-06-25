@@ -20,6 +20,7 @@ namespace WinProxyTool_WPF.ViewModel
             mainModel.ToggleOverride = new Command { ExecuteAction = _ => { _ToggleOverride(); } };
             mainModel.UpdataOverrideStatu = new Command { ExecuteAction = _ => { _AutoUpdataOverrideStatu(); } };
             mainModel.SaveOverride = new Command { ExecuteAction = _ => { _SaveOverride(); } };
+            mainModel.ClearOverride = new Command { ExecuteAction = _ => { _ClearOverride(); } };
 
             mainModel.Sync = new Command { ExecuteAction = _ => { _SyncDialog(); } };
 
@@ -28,6 +29,7 @@ namespace WinProxyTool_WPF.ViewModel
             _SyncDialog();
             UIUpdataThread();
         }
+
         //自动更新线程
         private void UIUpdataThread()
         {
@@ -108,18 +110,23 @@ namespace WinProxyTool_WPF.ViewModel
             catch (Exception e) { Debug.WriteLine("捕获异常>>>" + e); }
         }
 
-        private void _ToggleOverride() { _SaveOverride(); }
+        private void _ToggleOverride()
+        {
+            mainModel.IsSkipLocal = mainModel.SkipStatu;
+            _SaveOverride();
+        }
 
         public void _AutoUpdataOverrideStatu()
         {
             mainModel.ProxyOverride = winRegTool.Get_ProxyOverride() != null ? winRegTool.Get_ProxyOverride() : "";
             mainModel.IsSkipLocal = mainModel.ProxyOverride.Contains("<local>");
+            mainModel.SkipStatu = mainModel.IsSkipLocal;
         }
 
         public void _SaveOverride()
         {
             string? input = mainModel.InputProxyOverride;
-            if (mainModel.SkipStatu)
+            if (mainModel.IsSkipLocal)
             {
                 if (!input.Contains("<local>")) { input = input + ";<local>"; }
             }
@@ -135,6 +142,13 @@ namespace WinProxyTool_WPF.ViewModel
             if (input.EndsWith(";"))
             { input = input.Substring(0, input.Length - 2); }
             winRegTool.Set_ProxyOverride(input);
+        }
+
+        private void _ClearOverride()
+        {
+            winRegTool.Set_ProxyOverride("");
+            //TODO 更新输入框时显示加载进度条 需要延迟执行以下语句
+            mainModel.InputProxyOverride = mainModel.ProxyOverride.Replace("<local>;", "").Replace(";<local>", "").Replace("<local>", "");
         }
     }
 }

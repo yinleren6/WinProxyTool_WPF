@@ -77,5 +77,7 @@ namespace WinProxyTool_WPF.Model
         public ICommand? UpdataOverrideStatu { get; set; }
         //保存override
         public ICommand? SaveOverride { get; set; }
+        //清除override
+        public ICommand? ClearOverride { get; set; }
     }
 }

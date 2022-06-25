@@ -20,4 +20,5 @@ A gadget for quickly setting up Windows agents
 - [x] MD 对话框
 - [x] 自动更新数据
 - [ ] 添加 Sanckbar
+- [ ] 增加一些预设
 - [ ] ...
